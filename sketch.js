@@ -1,20 +1,30 @@
 var dots = [];
-var difficultySettings = '';
+var difficultySettings = ''; //just Text
 var winningMessage ='';
+var timeMessage = '';//just Text
+// These are button objects:
 var restartButton = '';
-var counter = 0;
-var goal = 20;
-var dm = 50;
 var easyButton;
 var mediumButton;
 var hardButton;
+
+var counter = 0; //used to see if number of dissappeared Dots = spawned Dots
+var goal = 20;
+var dm = 50; //Dots diameter
 var gameEnd = false;
-var cnv;
+var cnv; //Just a variable to target canvas
+
+var startTime;
+var endTime;
+var neededTime;
 function setup() {
   startGame();
 }
+/*Wonder if I can also use an if to look which difficulty level was selected
+instead of writing 3 different functions*/
 function startEasyGame() {
-  goal = 10;
+  startTime = new Date();
+  goal = 1;
   easyButton.remove();
   mediumButton.remove();
   hardButton.remove();
@@ -26,6 +36,7 @@ function startEasyGame() {
   }
 }
 function startMediumGame() {
+    startTime = new Date();
     goal = 20;
     easyButton.remove();
     mediumButton.remove();
@@ -38,6 +49,7 @@ function startMediumGame() {
     }
 }
 function startHardGame() {
+      startTime = new Date();
       goal = 30;
       easyButton.remove();
       mediumButton.remove();
@@ -49,7 +61,9 @@ function startHardGame() {
         dots[i] = new Dot();
       }
 }
+
 function Dot(){
+  //Creates dot object Values
   this.r = random(150,220);
   this.g = random(150,220);
   this.b = random(150,220);
@@ -62,6 +76,7 @@ function Dot(){
     fill(this.r,this.g,this.b);
     ellipse(this.x, this.y, dm, dm);
   }
+  //Dot movement pattern
   this.move = function(){
     this.x = this.x + this.speedX;
     if (this.x > width || this.x < 0){
@@ -72,6 +87,7 @@ function Dot(){
       this.speedY = -this.speedY;
     }
   }
+  //Checks if a Dot is clicked -> then deletes Dot
   this.clicked = function() {
     var d = dist(mouseX, mouseY, this.x, this.y);
     if (d < 15) {
@@ -80,11 +96,14 @@ function Dot(){
     }
   }
 }
+//Activates click function
 function mousePressed() {
   for (i = 0; i < dots.length; i++) {
     dots[i].clicked();
   }
 }
+/*Initializes Canvas, Difficulty Settings Block, resets counter var to 0 and
+removes Winning Signs*/
 function startGame() {
   cnv = createCanvas(windowWidth / 1.3, windowHeight / 1.3);
   cnv.parent('myCanvas');
@@ -101,12 +120,12 @@ function startGame() {
   hardButton.addClass('btn btn-danger');
   counter = 0;
   if (gameEnd === -1){
-    print('Test');
     restartButton.remove();
     winningMessage.remove();
     gameEnd = false;
   }
 }
+//Displays and moves dots, checks for button press
 function draw(){
   easyButton.mousePressed(startEasyGame);
   mediumButton.mousePressed(startMediumGame);
@@ -117,7 +136,13 @@ function draw(){
     dots[i].move();
   }
   if (counter == goal) {
-    winningMessage = createP('Hoorray, You have won');
+    endTime = new Date();
+    neededTime = endTime - startTime;
+    neededTimeMin = floor(neededTime / 60000);
+    neededTimeSec = floor((neededTime - (neededTimeMin * 60000)) / 1000);
+    neededTimeMin.toFixed(1);
+    var winningText = 'Hoorray, You have won - Your time was: ' + neededTimeMin + " min " + neededTimeSec + " s";
+    winningMessage = createP(winningText);
     winningMessage.parent('myText');
     restartButton = createButton('Click here to restart');
     restartButton.parent('myButtons');
